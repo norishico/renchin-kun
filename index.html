@@ -221,18 +221,18 @@
       <div class="picker-wrap">
         <div class="picker-unit">分</div>
         <div class="picker-box">
-          <button class="picker-arrow" id="minUp" ontouchstart="startRepeat('min',1)" ontouchend="stopRepeat()" onmousedown="startRepeat('min',1)" onmouseup="stopRepeat()" onmouseleave="stopRepeat()">▲</button>
+          <button class="picker-arrow" id="minUp">▲</button>
           <div class="picker-val" id="dispMin">3</div>
-          <button class="picker-arrow" id="minDown" ontouchstart="startRepeat('min',-1)" ontouchend="stopRepeat()" onmousedown="startRepeat('min',-1)" onmouseup="stopRepeat()" onmouseleave="stopRepeat()">▼</button>
+          <button class="picker-arrow" id="minDown">▼</button>
         </div>
       </div>
       <div class="time-sep">:</div>
       <div class="picker-wrap">
         <div class="picker-unit">秒</div>
         <div class="picker-box">
-          <button class="picker-arrow" ontouchstart="startRepeat('sec',10)" ontouchend="stopRepeat()" onmousedown="startRepeat('sec',10)" onmouseup="stopRepeat()" onmouseleave="stopRepeat()">▲</button>
+          <button class="picker-arrow" id="secUp">▲</button>
           <div class="picker-val" id="dispSec">00</div>
-          <button class="picker-arrow" ontouchstart="startRepeat('sec',-10)" ontouchend="stopRepeat()" onmousedown="startRepeat('sec',-10)" onmouseup="stopRepeat()" onmouseleave="stopRepeat()">▼</button>
+          <button class="picker-arrow" id="secDown">▼</button>
         </div>
       </div>
     </div>
@@ -292,6 +292,18 @@
   function stopRepeat() {
     clearTimeout(repeatTimer);
     clearInterval(repeatInterval);
+  }
+
+  function bindPicker(id, field, delta) {
+    const btn = document.getElementById(id);
+    btn.addEventListener('touchstart', (e) => {
+      e.preventDefault(); // mousedownの二重発火を防ぐ
+      startRepeat(field, delta);
+    }, { passive: false });
+    btn.addEventListener('touchend', stopRepeat);
+    btn.addEventListener('mousedown', startRepeat.bind(null, field, delta));
+    btn.addEventListener('mouseup', stopRepeat);
+    btn.addEventListener('mouseleave', stopRepeat);
   }
 
   function changeTime(field, delta) {
@@ -386,6 +398,10 @@
     if (v >= 100 && v <= 3000) { selMyW = v; renderBtns('myrangeWattBtns', -1, 'my'); calculate(); }
   });
 
+  bindPicker('minUp',   'min',  1);
+  bindPicker('minDown', 'min', -1);
+  bindPicker('secUp',   'sec',  10);
+  bindPicker('secDown', 'sec', -10);
   renderBtns('productWattBtns', selProdW, 'prod');
   renderBtns('myrangeWattBtns', selMyW, 'my');
   renderSaved();
